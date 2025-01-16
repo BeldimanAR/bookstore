@@ -1,27 +1,28 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { mockData } from '../data/mockData';
 import { Book } from '../types/book';
 import { CartContext } from '../context/CartContext';
+import { BooksContext } from '../context/BookContext';
 
 const BooksPage: React.FC = () => {
   const { addToCart } = useContext(CartContext);
+  const { books } = useContext(BooksContext); 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>(mockData);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>(books);
 
   useEffect(() => {
     if (!searchTerm) {
-      setFilteredBooks(mockData);
+      setFilteredBooks(books);
     } else {
       const lower = searchTerm.toLowerCase();
       setFilteredBooks(
-        mockData.filter(
+        books.filter(
           (book) =>
             book.title.toLowerCase().includes(lower) ||
             book.author.toLowerCase().includes(lower)
         )
       );
     }
-  }, [searchTerm]);
+  }, [searchTerm, books]);
 
   const handleAddToCart = (book: Book) => {
     addToCart(book);

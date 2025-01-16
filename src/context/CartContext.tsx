@@ -1,5 +1,6 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useContext } from 'react';
 import { Book } from '../types/book';
+import { BooksContext } from './BookContext';
 
 interface CartItem extends Book {
   quantity: number;
@@ -29,6 +30,7 @@ interface CartProviderProps {
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const { books, updateBooks } = useContext(BooksContext);
 
   const addToCart = (book: Book, quantity: number = 1) => {
     setCartItems((prevItems) => {
@@ -68,12 +70,28 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     );
   };
 
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-
   const submitCart = () => {
 
+    const updatedBooks = books.map((book) => {
+      const cartItem = cartItems.find((item) => item.id === book.id);
+      if (cartItem) {
+ 
+        return { ...book, stock: Math.max(book.stock - cartItem.quantity, 0) };
+      }
+      return book;
+    });
+
+
+    updateBooks(updatedBooks);
+
+
     setCartItems([]);
+
+ 
   };
+
+  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
 
   return (
     <CartContext.Provider
